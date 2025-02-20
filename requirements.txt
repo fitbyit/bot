@@ -2,4 +2,5 @@ aiogram
 pdfplumber
 pandas
 matplotlib
-Gunicorn
+fastapi
+uvicorn
