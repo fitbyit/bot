@@ -11,6 +11,8 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram import F
 from aiogram.types import Message, FSInputFile
+from fastapi import FastAPI
+import uvicorn
 
 # Get bot token from environment variables
 TOKEN = os.getenv("TOKEN")
@@ -136,9 +138,17 @@ def generate_chart(grouped_df, chart_path):
     plt.savefig(chart_path)
     plt.close()
 
-async def main():
-    dp.include_router(router)
-    await dp.start_polling(bot)
+# FastAPI Web Server to keep Render service active
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"status": "Bot is running"}
+
+def start_webserver():
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import threading
+    threading.Thread(target=start_webserver).start()  # Start the web server
+    asyncio.run(main())  # Start the bot
